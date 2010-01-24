@@ -48,4 +48,8 @@ class Lockerz():
         r = self.br.open( "http://www.lockerz.com/daily/answer", d );
         print r.read()
 
+    def getPTZ( self ):
+        s = BeautifulSoup( self.br.reload().read() )
+        return s.find( "span", attrs={ "class": "ptz_value" } ).string
+
 # vim: fdm=marker ts=4 sw=4 sts=4
