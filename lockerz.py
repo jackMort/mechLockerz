@@ -38,9 +38,11 @@ class Lockerz():
         s = BeautifulSoup( r.read() )
         e = s.findAll( "div", attrs={ "class": "dailiesEntry" } ) 
         for i in e:
-            if i.id is not None:
-                self.answer( i.id, answer )
-    
+            try:
+                self.answer( i["id"], answer )
+            except KeyError:
+                print "Already answered"    
+
     def answer( self, id, answer ):
         d = urllib.urlencode( { "id": id, "a": answer, "o": None } )
         r = self.br.open( "http://www.lockerz.com/daily/answer", d );
