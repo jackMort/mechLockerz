@@ -18,7 +18,7 @@ import os
 import string
 import random
 import urllib
-from mechanize import Browser
+from mechanize import Browser, LinkNotFoundError
 from BeautifulSoup import BeautifulSoup
 
 class Lockerz():
@@ -35,17 +35,22 @@ class Lockerz():
 
         self.br.submit()
         return "Lockerz : My Locker" in self.br.title()
+    
+    def answer_all( self, generator, recursive=False ):
+        page = self.br.follow_link( text_regex="DAILIES" );
+        self._answer_all( page, generator )
+        # ..
+        if recursive:
+            i = 0
+            while True:
+                try:
+                    page = self.br.follow_link( text_regex="< Previous Posts" )
+                    i+=1
+                    print "-- page %d" % i
+                    self._answer_all( page, generator )
+                except LinkNotFoundError:
+                    break
         
-    def answer_daily( self, generator ):
-        r = self.br.follow_link( text_regex="DAILIES" )
-        s = BeautifulSoup( r.read() )
-        e = s.findAll( "div", attrs={ "class": "dailiesEntry" } )
-        for i in e:
-            try:
-                self.answer( i["id"], generator.getRandomSentence() )
-            except KeyError:
-                print "Already answered ..."    
-
     def answer( self, id, answer ):
         d = urllib.urlencode( { "id": id, "a": answer, "o": None } )
         r = self.br.open( "http://www.lockerz.com/daily/answer", d );
@@ -54,23 +59,33 @@ class Lockerz():
     def getPTZ( self ):
         s = BeautifulSoup( self.br.open( "http://www.lockerz.com" ).read() )
         return s.find( "span", attrs={ "class": "ptz_value" } ).string
+ 
+    def _answer_all( self, page, generator ):
+        s = BeautifulSoup( page.read() )
+        e = s.findAll( "div", attrs={ "class": "dailiesEntry" } )
+        for i in e:
+            try:
+                self.answer( i["id"], generator.getRandomSentence() )
+            except KeyError:
+                print "Already answered ..."    
+
 
 class WordGenerator:
-	def __init__( self, min=2, max=100 ):
-		self.min = min
-		self.max = max
-		stat = os.stat( '/usr/share/dict/words' )
-		self.flen = stat[6]
-		self.f = open( '/usr/share/dict/words' )
-	
-	def getSentance( self, size ):
-		words = []
-		while len( words ) < size:
-			self.f.seek( int( random.random() * self.flen ) )
-			words.append( string.split( self.f.read( 50 ) )[0] )
-		return ' '.join( words )
-	
-	def getRandomSentence( self ):
-		return self.getSentance( random.randint( self.min, self.max ) )
+    def __init__( self, min=2, max=30 ):
+        self.min = min
+        self.max = max
+        stat = os.stat( '/usr/share/dict/words' )
+        self.flen = stat[6]
+        self.f = open( '/usr/share/dict/words' )
+
+    def getSentance( self, size ):
+        words = []
+        while len( words ) < size:
+            self.f.seek( int( random.random() * self.flen ) )
+            words.append( string.split( self.f.read( 50 ) )[0] )
+        return ' '.join( words )
+
+    def getRandomSentence( self ):
+        return self.getSentance( random.randint( self.min, self.max ) )
 
 # vim: fdm=marker ts=4 sw=4 sts=4

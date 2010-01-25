@@ -21,7 +21,7 @@ lockerz = Lockerz( "<USER>", "<PASSWORD>" )
 if lockerz.connect():
 	ptz = lockerz.getPTZ()
 	generator = WordGenerator()
-	lockerz.answer_daily( generator )
+	lockerz.answer_all( generator, recursive=True )
 	print ":: PTZ before: %s, after %s" % ( ptz, lockerz.getPTZ() )
 else:
 	print "Cannot connect, check user and password ..."
