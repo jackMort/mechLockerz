@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
+import os
+import string
+import random
 import urllib
 from mechanize import Browser
 from BeautifulSoup import BeautifulSoup
@@ -33,15 +36,15 @@ class Lockerz():
         self.br.submit()
         return "Lockerz : My Locker" in self.br.title()
         
-    def answer_daily( self, answer ):
+    def answer_daily( self, generator ):
         r = self.br.follow_link( text_regex="DAILIES" )
         s = BeautifulSoup( r.read() )
-        e = s.findAll( "div", attrs={ "class": "dailiesEntry" } ) 
+        e = s.findAll( "div", attrs={ "class": "dailiesEntry" } )
         for i in e:
             try:
-                self.answer( i["id"], answer )
+                self.answer( i["id"], generator.getRandomSentence() )
             except KeyError:
-                print "Already answered"    
+                print "Already answered ..."    
 
     def answer( self, id, answer ):
         d = urllib.urlencode( { "id": id, "a": answer, "o": None } )
@@ -49,7 +52,25 @@ class Lockerz():
         print r.read()
 
     def getPTZ( self ):
-        s = BeautifulSoup( self.br.reload().read() )
+        s = BeautifulSoup( self.br.open( "http://www.lockerz.com" ).read() )
         return s.find( "span", attrs={ "class": "ptz_value" } ).string
+
+class WordGenerator:
+	def __init__( self, min=2, max=100 ):
+		self.min = min
+		self.max = max
+		stat = os.stat( '/usr/share/dict/words' )
+		self.flen = stat[6]
+		self.f = open( '/usr/share/dict/words' )
+	
+	def getSentance( self, size ):
+		words = []
+		while len( words ) < size:
+			self.f.seek( int( random.random() * self.flen ) )
+			words.append( string.split( self.f.read( 50 ) )[0] )
+		return ' '.join( words )
+	
+	def getRandomSentence( self ):
+		return self.getSentance( random.randint( self.min, self.max ) )
 
 # vim: fdm=marker ts=4 sw=4 sts=4

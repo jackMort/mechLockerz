@@ -13,14 +13,18 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
-from lockerz import Lockerz
 
-lockerz = Lockerz( "<USER>", "<PASSWORD>" )
+from lockerz import Lockerz
+from lockerz import WordGenerator
+
+#lockerz = Lockerz( "<USER>", "<PASSWORD>" )
+lockerz = Lockerz( "lech.twarog@gmail.com", "loloqwert" )
 if lockerz.connect():
-    lockerz.answer_daily( "my answer is ..." );
-    print ":: %s PTZ" % lockerz.getPTZ() 
+	ptz = lockerz.getPTZ()
+	generator = WordGenerator()
+	lockerz.answer_daily( generator )
+	print ":: PTZ before: %s, after %s" % ( ptz, lockerz.getPTZ() )
 else:
-    print "Cannot connect, check user and password ..."
+	print "Cannot connect, check user and password ..."
 
 # vim: fdm=marker ts=4 sw=4 sts=4
