@@ -17,8 +17,7 @@
 from lockerz import Lockerz
 from lockerz import WordGenerator
 
-#lockerz = Lockerz( "<USER>", "<PASSWORD>" )
-lockerz = Lockerz( "lech.twarog@gmail.com", "loloqwert" )
+lockerz = Lockerz( "<USER>", "<PASSWORD>" )
 if lockerz.connect():
 	ptz = lockerz.getPTZ()
 	generator = WordGenerator()
