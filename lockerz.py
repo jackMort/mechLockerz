@@ -21,7 +21,7 @@ import urllib
 from mechanize import Browser, LinkNotFoundError
 from BeautifulSoup import BeautifulSoup
 
-class Lockerz():
+class Lockerz:
     def __init__( self, name, password ):
         self.name = name
         self.password = password
@@ -44,8 +44,8 @@ class Lockerz():
             i = 0
             while True:
                 try:
-                    page = self.br.follow_link( text_regex="< Previous Posts" )
                     i+=1
+                    page = self.br.follow_link( text_regex="< Previous Posts" )
                     print "-- page %d" % i
                     self._answer_all( page, generator )
                 except LinkNotFoundError:
@@ -55,6 +55,7 @@ class Lockerz():
         d = urllib.urlencode( { "id": id, "a": answer, "o": None } )
         r = self.br.open( "http://www.lockerz.com/daily/answer", d );
         print r.read()
+        self.br.back()
 
     def getPTZ( self ):
         s = BeautifulSoup( self.br.open( "http://www.lockerz.com" ).read() )
