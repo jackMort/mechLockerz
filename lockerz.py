@@ -13,8 +13,9 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 import os
+import re
 import string
 import random
 import urllib
@@ -35,9 +36,9 @@ class Lockerz:
 
         self.br.submit()
         return "Lockerz : My Locker" in self.br.title()
-    
+
     def answer_all( self, generator, recursive=False ):
-        page = self.br.follow_link( text_regex="DAILIES" );
+        page = self.br.open( "http://www.lockerz.com/dailies" );
         self._answer_all( page, generator )
         # ..
         if recursive:
@@ -50,7 +51,7 @@ class Lockerz:
                     self._answer_all( page, generator )
                 except LinkNotFoundError:
                     break
-        
+
     def answer( self, id, answer ):
         d = urllib.urlencode( { "id": id, "a": answer, "o": None } )
         r = self.br.open( "http://www.lockerz.com/daily/answer", d );
@@ -63,7 +64,7 @@ class Lockerz:
  
     def _answer_all( self, page, generator ):
         s = BeautifulSoup( page.read() )
-        e = s.findAll( "div", attrs={ "class": "dailiesEntry" } )
+        e = s.findAll( "div", attrs={ "class": re.compile( "dailiesEntry dailyIndex*" ) } )
         for i in e:
             try:
                 self.answer( i["id"], generator.getRandomSentence() )
